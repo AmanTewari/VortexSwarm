@@ -41,6 +41,14 @@
           <span class="kpi-label">Auth Mode</span>
           <strong id="authModeBadge">MICROSOFT</strong>
         </article>
+        <article class="kpi">
+          <span class="kpi-label">Swarm Status</span>
+          <strong id="swarmStatus">STOPPED</strong>
+        </article>
+        <article class="kpi">
+          <span class="kpi-label">Backend</span>
+          <strong id="backendStatus">OFFLINE</strong>
+        </article>
       </section>
 
       <section class="panel-row">
@@ -52,11 +60,34 @@
           </form>
 
           <div class="quick-actions">
+            <button id="startAll" class="btn" type="button">Start Swarm</button>
             <button class="btn ghost" data-cmd="come">come</button>
             <button class="btn ghost" data-cmd="status">status</button>
             <button class="btn ghost" data-cmd="attack zombie">attack zombie</button>
             <button id="stopAll" class="btn danger" type="button">Stop Swarm</button>
           </div>
+
+          <section class="server-panel">
+            <h3>Server Settings</h3>
+            <form id="serverConfigForm" class="server-form">
+              <label for="serverHost">Host</label>
+              <input id="serverHost" name="serverHost" type="text" placeholder="localhost" required />
+
+              <label for="serverPort">Port</label>
+              <input id="serverPort" name="serverPort" type="number" min="1" max="65535" placeholder="25565" required />
+
+              <label for="serverVersion">Version</label>
+              <input id="serverVersion" name="serverVersion" type="text" placeholder="auto" />
+
+              <label for="joinDelayMs">Join Delay (ms)</label>
+              <input id="joinDelayMs" name="joinDelayMs" type="number" min="0" max="120000" placeholder="2000" required />
+
+              <label for="botCount">Bot Count</label>
+              <input id="botCount" name="botCount" type="number" min="1" step="1" placeholder="5" required />
+
+              <button class="btn" type="submit">Apply & Restart</button>
+            </form>
+          </section>
 
           <fieldset class="mode-toggle">
             <legend>Authentication Mode</legend>
@@ -68,7 +99,27 @@
               <input type="radio" id="modeOffline" name="authMode" value="offline" />
               <span>Offline</span>
             </label>
+
+            <div class="offline-style-wrap">
+              <label for="offlineNameStyle">Offline Name Style</label>
+              <select id="offlineNameStyle" name="offlineNameStyle">
+                <option value="gaming">Gaming (DoggyGamer2331)</option>
+                <option value="human">Human (TomFelton / Tom_Felton)</option>
+                <option value="mixed">Mixed</option>
+              </select>
+              <button id="saveNames" class="btn ghost" type="button">Save Names</button>
+            </div>
           </fieldset>
+
+          <section class="saved-names-panel">
+            <h3>Saved Names</h3>
+            <div id="savedNamesList" class="saved-names-list"></div>
+          </section>
+
+          <section class="saved-names-panel">
+            <h3>Current Offline Names</h3>
+            <div id="currentOfflineNamesList" class="saved-names-list"></div>
+          </section>
 
           <p id="feedback" class="feedback"></p>
         </article>

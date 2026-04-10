@@ -106,7 +106,7 @@ h2 {
 
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
 }
 
@@ -144,6 +144,11 @@ h2 {
   gap: 12px;
 }
 
+.controls {
+  display: grid;
+  gap: 10px;
+}
+
 .command-form {
   display: flex;
   gap: 10px;
@@ -172,6 +177,25 @@ h2 {
   padding: 10px 12px;
   font-weight: 600;
   cursor: pointer;
+  transition: transform 120ms ease, box-shadow 140ms ease, background-color 140ms ease, border-color 140ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn.ghost {
@@ -223,6 +247,127 @@ h2 {
   accent-color: var(--accent);
 }
 
+.offline-style-wrap {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.offline-style-wrap label {
+  color: var(--text-1);
+  font-size: 0.82rem;
+}
+
+.offline-style-wrap select {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  color: var(--text-0);
+  background: rgba(127, 127, 127, 0.12);
+  font-family: var(--font-ui);
+  color-scheme: dark light;
+}
+
+.offline-style-wrap select option {
+  color: #111;
+  background: #f3f3f3;
+}
+
+.offline-style-wrap select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.saved-names-panel {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.saved-names-panel h3 {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  color: var(--text-1);
+}
+
+.saved-names-list {
+  display: grid;
+  gap: 8px;
+  max-height: 170px;
+  overflow-y: auto;
+}
+
+.saved-names-empty {
+  color: var(--text-1);
+  font-size: 0.82rem;
+}
+
+.saved-entry {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  background: rgba(127, 127, 127, 0.08);
+  display: grid;
+  gap: 6px;
+}
+
+.saved-entry-meta {
+  font-size: 0.75rem;
+  color: var(--text-1);
+  font-family: var(--font-mono);
+}
+
+.saved-entry-names {
+  font-size: 0.8rem;
+  color: var(--text-0);
+  word-break: break-word;
+}
+
+.saved-entry .saved-delete {
+  justify-self: start;
+  padding: 6px 10px;
+}
+
+.server-panel {
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.server-panel h3 {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  color: var(--text-1);
+}
+
+.server-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-items: end;
+}
+
+.server-form label {
+  font-size: 0.78rem;
+  color: var(--text-1);
+}
+
+.server-form input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: var(--text-0);
+  background: rgba(127, 127, 127, 0.12);
+  font-family: var(--font-mono);
+}
+
+.server-form button {
+  grid-column: span 2;
+}
+
 .feedback {
   margin-top: 10px;
   min-height: 18px;
@@ -231,7 +376,7 @@ h2 {
 }
 
 .log-feed {
-  height: 260px;
+  height: 420px;
   overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -249,6 +394,14 @@ h2 {
 
 .log-line strong {
   color: var(--text-0);
+}
+
+.log-details {
+  margin-top: 4px;
+  padding-left: 2px;
+  color: var(--text-1);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .bot-grid {
@@ -275,10 +428,47 @@ h2 {
   font-family: var(--font-mono);
 }
 
+.bot-actions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bot-actions .btn {
+  padding: 6px 9px;
+  font-size: 0.78rem;
+}
+
+.bot-say-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+}
+
+.bot-say-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 8px;
+  color: var(--text-0);
+  background: rgba(127, 127, 127, 0.12);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
 @media (max-width: 920px) {
   .kpi-row,
   .panel-row {
     grid-template-columns: 1fr;
+  }
+
+  .server-form {
+    grid-template-columns: 1fr;
+  }
+
+  .server-form button {
+    grid-column: span 1;
   }
 
   .shell {
