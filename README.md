@@ -1,8 +1,38 @@
 # VortexSwarm
 
-Headless Minecraft bot swarm MVP built with Mineflayer.
+A simple control system for running multiple Minecraft bots at once.
 
-## Install
+## Disclaimer
+
+Use this project only where you have explicit permission and in compliance with applicable laws, the Minecraft EULA, and server terms. You assume all risk and responsibility for use. See [disclaimer.md](disclaimer.md) for full terms.
+
+## What This Project Does
+
+- Runs multiple bots together as a group.
+- Lets you control the group from a simple web page.
+- Supports basic group actions like coming to you, chatting, attacking, and status reports.
+
+## Developer Documentation
+
+For architecture, flow, API, and debugging guides, see [docs/README.md](docs/README.md).
+
+## Who This Is For
+
+This README is written for anyone who wants to run the tool, even with limited coding experience.
+
+## Before You Start
+
+You need:
+
+- A Windows, macOS, or Linux machine.
+- Node.js installed.
+- A Minecraft server you are allowed to test on.
+- Account and proxy info prepared in the included files.
+
+## Setup
+
+1. Open this project folder.
+2. Install dependencies:
 
 ```bash
 npm install mineflayer mineflayer-pathfinder mineflayer-pvp proxy-agent minecraft-data
@@ -16,9 +46,9 @@ npm install
 
 ## Files
 
-- `index.js`: Swarm manager and bot lifecycle.
-- `accounts.json`: Account list (token-first auth, fallback supported).
-- `proxies.txt`: Proxy list (one per line).
+- `accounts.json`: Your bot accounts.
+- `proxies.txt`: Your proxies (one per line).
+- `disclaimer.md`: Full legal and responsibility notice.
 
 ## accounts.json Structure
 
@@ -50,7 +80,7 @@ socks5://127.0.0.1:1081
 
 ## Configuration
 
-Use environment variables:
+You can customize behavior using environment variables:
 
 - `MC_HOST` (default: `localhost`)
 - `MC_PORT` (default: `25565`)
@@ -59,15 +89,27 @@ Use environment variables:
 - `JOIN_DELAY_MS` (default: `2000`)
 - `MASTER_USERNAME` (default: `MasterPlayer`)
 - `MASTER_UUID` (default: empty)
+- `WEB_HOST` (default: `0.0.0.0`)
+- `WEB_PORT` (default: `3000`)
+- `WEB_TOKEN` (default: empty, optional API auth token)
 - `RECONNECT_ENABLED` (default: `true`)
 - `RECONNECT_MAX_RETRIES` (default: `5`)
 - `RECONNECT_BASE_DELAY_MS` (default: `5000`)
 
 ## Run
 
+Start the swarm:
+
 ```bash
 npm start
 ```
+
+Then open the web control panel:
+
+- Open `http://localhost:3000` (or your `WEB_PORT`)
+- Use the command box to send: `come`, `spam hello`, `attack zombie`, `status`
+- View bot activity and live logs
+- Switch between grayscale light and dark themes
 
 ## Commands (From Master)
 
@@ -78,9 +120,12 @@ All commands must be prefixed (default `!`):
 - `!attack <target>`: All bots chase and attack matching entity.
 - `!status`: Each bot reports health and coordinates.
 
-## Notes
+## Troubleshooting (Simple)
 
-- Bots spawn with staggered joins (`JOIN_DELAY_MS`) to reduce anti-bot triggers.
-- Each bot is assigned one proxy by index; proxies are reused if there are fewer proxies than accounts.
-- Master auth uses UUID when available, then falls back to username.
-- Errors, kicks, and disconnects are isolated per bot so one bot failing does not crash the process.
+- If the page does not open, check that the app is running and your `WEB_PORT` is correct.
+- If bots do not join, recheck `accounts.json` values.
+- If some bots fail but others work, inspect `proxies.txt` for invalid entries.
+
+## Final Note
+
+Use this responsibly and only in places where automation is allowed.

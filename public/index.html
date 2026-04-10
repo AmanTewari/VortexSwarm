@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VortexSwarm Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">VORTEXSWARM</p>
+          <h1>Swarm Control Panel</h1>
+        </div>
+        <button id="themeToggle" class="btn ghost" type="button">Switch Theme</button>
+      </header>
+
+      <section class="kpi-row">
+        <article class="kpi">
+          <span class="kpi-label">Server</span>
+          <strong id="server">-</strong>
+        </article>
+        <article class="kpi">
+          <span class="kpi-label">Configured Bots</span>
+          <strong id="configuredBots">0</strong>
+        </article>
+        <article class="kpi">
+          <span class="kpi-label">Connected Bots</span>
+          <strong id="connectedBots">0</strong>
+        </article>
+        <article class="kpi">
+          <span class="kpi-label">Join Delay</span>
+          <strong id="joinDelay">0ms</strong>
+        </article>
+      </section>
+
+      <section class="panel-row">
+        <article class="panel controls">
+          <h2>Broadcast Command</h2>
+          <form id="commandForm" class="command-form">
+            <input id="commandInput" name="commandInput" type="text" placeholder="come | spam hello | attack Steve | status" autocomplete="off" required />
+            <button class="btn" type="submit">Run</button>
+          </form>
+
+          <div class="quick-actions">
+            <button class="btn ghost" data-cmd="come">come</button>
+            <button class="btn ghost" data-cmd="status">status</button>
+            <button class="btn ghost" data-cmd="attack zombie">attack zombie</button>
+            <button id="stopAll" class="btn danger" type="button">Stop Swarm</button>
+          </div>
+          <p id="feedback" class="feedback"></p>
+        </article>
+
+        <article class="panel logs">
+          <h2>Live Logs</h2>
+          <div id="logFeed" class="log-feed" aria-live="polite"></div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <h2>Bot Fleet</h2>
+        <div id="botGrid" class="bot-grid"></div>
+      </section>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
