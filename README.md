@@ -86,6 +86,7 @@ You can customize behavior using environment variables:
 - `MC_PORT` (default: `25565`)
 - `MC_VERSION` (default: auto)
 - `CMD_PREFIX` (default: `!`)
+- `AUTH_MODE` (default: `microsoft`, options: `microsoft` or `offline`)
 - `JOIN_DELAY_MS` (default: `2000`)
 - `MASTER_USERNAME` (default: `MasterPlayer`)
 - `MASTER_UUID` (default: empty)
@@ -110,6 +111,7 @@ Then open the web control panel:
 - Use the command box to send: `come`, `spam hello`, `attack zombie`, `status`
 - View bot activity and live logs
 - Switch between grayscale light and dark themes
+- Toggle bot authentication mode between Microsoft and Offline from the control panel
 
 ## Commands (From Master)
 

@@ -16,6 +16,7 @@ const CONFIG = {
   port: Number(process.env.MC_PORT || 25565),
   version: process.env.MC_VERSION || false,
   commandPrefix: process.env.CMD_PREFIX || '!',
+  authMode: process.env.AUTH_MODE || 'microsoft',
   joinDelayMs: Number(process.env.JOIN_DELAY_MS || 2000),
   masterUsername: process.env.MASTER_USERNAME || 'MasterPlayer',
   masterUuid: process.env.MASTER_UUID || '',
@@ -134,6 +135,8 @@ class BotManager {
     this.recentCommands = new Map()
     this.stateSubscribers = new Set()
     this.started = false
+    this.authMode = config.authMode || 'microsoft'
+    this.reconnectTimers = new Map()
   }
 
   async start() {
@@ -173,6 +176,7 @@ class BotManager {
   getStateSnapshot() {
     return {
       server: `${this.config.host}:${this.config.port}`,
+      authMode: this.authMode,
       started: this.started,
       configuredBots: this.accounts.length,
       connectedBots: this.getConnectedBots().length,
@@ -214,7 +218,7 @@ class BotManager {
       port: this.config.port,
       version: this.config.version,
       username: account.username,
-      auth: account.auth || 'microsoft',
+      auth: this.authMode === 'offline' ? 'offline' : (account.auth || 'microsoft'),
       hideErrors: true
     }
 
@@ -226,22 +230,26 @@ class BotManager {
       }
     }
 
-    if (account.accessToken && account.clientToken) {
-      options.auth = 'microsoft'
-      options.session = {
-        accessToken: account.accessToken,
-        clientToken: account.clientToken,
-        selectedProfile: {
-          id: account.uuid || account.username,
-          name: account.username
-        }
-      }
-      log(account.username, 'Using token-based session auth.')
+    if (this.authMode === 'offline') {
+      log(account.username, 'Using offline auth mode.')
     } else {
-      if (account.password) {
-        options.password = account.password
+      if (account.accessToken && account.clientToken) {
+        options.auth = 'microsoft'
+        options.session = {
+          accessToken: account.accessToken,
+          clientToken: account.clientToken,
+          selectedProfile: {
+            id: account.uuid || account.username,
+            name: account.username
+          }
+        }
+        log(account.username, 'Using token-based session auth.')
+      } else {
+        if (account.password) {
+          options.password = account.password
+        }
+        log(account.username, 'Using fallback auth flow (no token pair found).')
       }
-      log(account.username, 'Using fallback auth flow (no token pair found).')
     }
 
     return options
@@ -525,6 +533,10 @@ class BotManager {
   }
 
   scheduleReconnect(account) {
+    if (!this.started) {
+      return
+    }
+
     const state = this.bots.get(account.username)
     if (!state) {
       return
@@ -551,12 +563,44 @@ class BotManager {
 
     log(account.username, `Scheduling reconnect #${retries} in ${delay}ms.`)
 
-    setTimeout(() => {
+    const timerId = setTimeout(() => {
+      this.reconnectTimers.delete(account.username)
       this.spawnBot(state.index, account, true)
     }, delay)
+
+    this.reconnectTimers.set(account.username, timerId)
+  }
+
+  async setAuthMode(mode) {
+    if (!['offline', 'microsoft'].includes(mode)) {
+      return { ok: false, error: 'Invalid auth mode. Must be offline or microsoft.' }
+    }
+
+    if (mode === this.authMode) {
+      return { ok: true, mode, restartOccurred: false }
+    }
+
+    this.authMode = mode
+
+    const wasStarted = this.started
+    if (wasStarted) {
+      await this.stop()
+      await this.start()
+    } else {
+      this.emitState()
+    }
+
+    return { ok: true, mode, restartOccurred: wasStarted }
   }
 
   async stop() {
+    this.started = false
+
+    for (const timerId of this.reconnectTimers.values()) {
+      clearTimeout(timerId)
+    }
+    this.reconnectTimers.clear()
+
     const entries = Array.from(this.bots.entries())
 
     for (const [botId, state] of entries) {
@@ -582,7 +626,6 @@ class BotManager {
     }
 
     this.bots.clear()
-    this.started = false
     this.emitState()
   }
 }
@@ -641,6 +684,24 @@ function createWebServer(manager, config) {
   app.post('/api/stop', async (_req, res) => {
     await manager.stop()
     res.json({ ok: true, message: 'Swarm stop requested.' })
+  })
+
+  app.post('/api/mode', async (req, res) => {
+    const { mode } = req.body || {}
+
+    if (!mode || !['offline', 'microsoft'].includes(mode)) {
+      res.status(400).json({ ok: false, error: 'Invalid or missing mode. Must be offline or microsoft.' })
+      return
+    }
+
+    const result = await manager.setAuthMode(mode)
+    if (!result.ok) {
+      res.status(400).json(result)
+      return
+    }
+
+    manager.emitState()
+    res.json(result)
   })
 
   io.on('connection', (socket) => {

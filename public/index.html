@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="bg-grid" aria-hidden="true"></div>
@@ -37,6 +37,10 @@
           <span class="kpi-label">Join Delay</span>
           <strong id="joinDelay">0ms</strong>
         </article>
+        <article class="kpi">
+          <span class="kpi-label">Auth Mode</span>
+          <strong id="authModeBadge">MICROSOFT</strong>
+        </article>
       </section>
 
       <section class="panel-row">
@@ -53,6 +57,19 @@
             <button class="btn ghost" data-cmd="attack zombie">attack zombie</button>
             <button id="stopAll" class="btn danger" type="button">Stop Swarm</button>
           </div>
+
+          <fieldset class="mode-toggle">
+            <legend>Authentication Mode</legend>
+            <label class="mode-option" for="modeMicrosoft">
+              <input type="radio" id="modeMicrosoft" name="authMode" value="microsoft" checked />
+              <span>Microsoft</span>
+            </label>
+            <label class="mode-option" for="modeOffline">
+              <input type="radio" id="modeOffline" name="authMode" value="offline" />
+              <span>Offline</span>
+            </label>
+          </fieldset>
+
           <p id="feedback" class="feedback"></p>
         </article>
 

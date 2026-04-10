@@ -106,7 +106,7 @@ h2 {
 
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -149,7 +149,7 @@ h2 {
   gap: 10px;
 }
 
-input {
+.command-form input[type='text'] {
   flex: 1;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -159,7 +159,7 @@ input {
   font-family: var(--font-mono);
 }
 
-input:focus {
+.command-form input[type='text']:focus {
   outline: 2px solid rgba(127, 127, 127, 0.35);
   outline-offset: 1px;
 }
@@ -191,6 +191,36 @@ input:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.mode-toggle {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(127, 127, 127, 0.08);
+}
+
+.mode-toggle legend {
+  color: var(--text-1);
+  font-size: 0.78rem;
+  padding: 0 6px;
+}
+
+.mode-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 14px;
+  color: var(--text-0);
+  cursor: pointer;
+}
+
+.mode-option input[type='radio'] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
 }
 
 .feedback {

@@ -3,9 +3,12 @@ const stateEls = {
   configuredBots: document.getElementById('configuredBots'),
   connectedBots: document.getElementById('connectedBots'),
   joinDelay: document.getElementById('joinDelay'),
+  authModeBadge: document.getElementById('authModeBadge'),
   botGrid: document.getElementById('botGrid'),
   logFeed: document.getElementById('logFeed'),
-  feedback: document.getElementById('feedback')
+  feedback: document.getElementById('feedback'),
+  modeMicrosoft: document.getElementById('modeMicrosoft'),
+  modeOffline: document.getElementById('modeOffline')
 }
 
 const commandForm = document.getElementById('commandForm')
@@ -14,6 +17,8 @@ const stopAll = document.getElementById('stopAll')
 const themeToggle = document.getElementById('themeToggle')
 
 const socket = io()
+let modeChangeInFlight = false
+let currentAuthMode = 'microsoft'
 
 function appendLog(entry) {
   const line = document.createElement('div')
@@ -63,6 +68,17 @@ function renderState(state) {
   stateEls.configuredBots.textContent = String(state.configuredBots)
   stateEls.connectedBots.textContent = String(state.connectedBots)
   stateEls.joinDelay.textContent = `${state.joinDelayMs}ms`
+  stateEls.authModeBadge.textContent = (state.authMode || currentAuthMode || 'microsoft').toUpperCase()
+
+  if (state.authMode && state.authMode !== currentAuthMode) {
+    currentAuthMode = state.authMode
+  }
+
+  const selectedMode = document.querySelector(`input[name="authMode"][value="${currentAuthMode}"]`)
+  if (selectedMode) {
+    selectedMode.checked = true
+  }
+
   renderBots(state.bots || [])
 }
 
@@ -120,6 +136,34 @@ stopAll.addEventListener('click', async () => {
     stateEls.feedback.textContent = `error: ${error.message}`
   }
 })
+
+for (const radio of document.querySelectorAll('input[name="authMode"]')) {
+  radio.addEventListener('change', async (event) => {
+    const newMode = event.target.value
+    if (modeChangeInFlight || newMode === currentAuthMode) {
+      return
+    }
+
+    modeChangeInFlight = true
+    stateEls.feedback.textContent = `changing auth mode to ${newMode}...`
+
+    try {
+      const result = await postJSON('/api/mode', { mode: newMode })
+      currentAuthMode = result.mode
+      stateEls.feedback.textContent = result.restartOccurred
+        ? `auth mode: ${result.mode} (swarm restarting)`
+        : `auth mode: ${result.mode}`
+    } catch (error) {
+      stateEls.feedback.textContent = `error: ${error.message}`
+      const prevMode = document.querySelector(`input[name="authMode"][value="${currentAuthMode}"]`)
+      if (prevMode) {
+        prevMode.checked = true
+      }
+    } finally {
+      modeChangeInFlight = false
+    }
+  })
+}
 
 themeToggle.addEventListener('click', () => {
   const html = document.documentElement
