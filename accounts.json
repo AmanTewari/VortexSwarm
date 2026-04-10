@@ -1,0 +1,14 @@
+[
+  {
+    "username": "AltOne",
+    "uuid": "00000000-0000-0000-0000-000000000001",
+    "accessToken": "MICROSOFT_ACCESS_TOKEN_HERE",
+    "clientToken": "CLIENT_TOKEN_HERE",
+    "auth": "microsoft"
+  },
+  {
+    "username": "AltTwo",
+    "auth": "microsoft",
+    "password": "OPTIONAL_FALLBACK_PASSWORD"
+  }
+]

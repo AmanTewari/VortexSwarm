@@ -1,0 +1,9 @@
+# One proxy per line
+# Supported formats:
+# socks5://user:pass@127.0.0.1:1080
+# socks5://127.0.0.1:1081
+# 127.0.0.1:1082:user:pass
+# 127.0.0.1:1083
+
+socks5://127.0.0.1:1080
+socks5://127.0.0.1:1081
