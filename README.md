@@ -95,6 +95,7 @@ You can customize behavior using environment variables:
 - `WEB_PORT` (default: `3000`)
 - `WEB_TOKEN` (default: empty, optional API auth token)
 - `SAVED_NAMES_PATH` (default: `data/saved-names.json`)
+- `BOT_COUNT_WARNING_THRESHOLD` (default: `200`, warning only)
 - `RECONNECT_ENABLED` (default: `true`)
 - `RECONNECT_MAX_RETRIES` (default: `5`)
 - `RECONNECT_BASE_DELAY_MS` (default: `5000`)
@@ -110,8 +111,12 @@ npm start
 Then open the web control panel:
 
 - Open `http://localhost:3000` (or your `WEB_PORT`)
-- Configure server host/port/version/join delay in the dashboard and apply changes
-- Set the number of active bots in the dashboard with `Bot Count`
+- Follow the beginner flow in the dashboard:
+	- Step 1: Setup Connection (host, port, version, join delay, bot count, auth mode)
+	- Step 2: Run Commands (start/stop swarm and quick actions)
+	- Step 3: Monitor Health (bot fleet cards and live logs)
+- Save settings from Step 1 using `Save Settings`
+- If the swarm is already running, changed settings reconnect bots automatically
 - Use the command box to send: `come`, `spam hello`, `attack zombie`, `status`
 - View bot activity and live logs
 - Switch between grayscale light and dark themes
@@ -123,6 +128,7 @@ Then open the web control panel:
 - Use `Save Names` to store the current generated offline names in a list in the panel, and delete saved entries when needed
 - Saved names are persistent and loaded from disk at startup (default file: `data/saved-names.json`)
 - Control bots one-by-one from each bot card (`Start`, `Stop`, `Come`, `Status`, and per-bot `Say`)
+- Bot count has no hard maximum in code; the UI only shows a performance warning at high values
 
 ## Commands (From Master)
 

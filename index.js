@@ -26,6 +26,7 @@ const CONFIG = {
   webPort: Number(process.env.WEB_PORT || 3000),
   webToken: process.env.WEB_TOKEN || '',
   savedNamesPath: process.env.SAVED_NAMES_PATH || path.join(ROOT, 'data', 'saved-names.json'),
+  botCountWarningThreshold: Number(process.env.BOT_COUNT_WARNING_THRESHOLD || 200),
   reconnect: {
     enabled: (process.env.RECONNECT_ENABLED || 'true') === 'true',
     maxRetries: Number(process.env.RECONNECT_MAX_RETRIES || 5),
@@ -249,8 +250,28 @@ class BotManager {
     const requestedBotCount = Number.isFinite(config.botCount) && config.botCount > 0
       ? Math.floor(config.botCount)
       : accounts.length
-    this.activeBotCount = Math.max(1, Math.min(requestedBotCount, 500))
+    this.activeBotCount = Math.max(1, requestedBotCount)
     this.activeSlots = []
+  }
+
+  getBotCountAdvisory(count = this.activeBotCount) {
+    const warningThreshold = Number.isFinite(this.config.botCountWarningThreshold)
+      ? Math.max(1, Math.floor(this.config.botCountWarningThreshold))
+      : 200
+
+    if (count >= warningThreshold) {
+      return {
+        warning: true,
+        warningThreshold,
+        message: `High bot counts can overload your PC and network. Consider a lower value or higher join delay.`
+      }
+    }
+
+    return {
+      warning: false,
+      warningThreshold,
+      message: ''
+    }
   }
 
   getSlotId(account) {
@@ -419,6 +440,8 @@ class BotManager {
   }
 
   getStateSnapshot() {
+    const botCountAdvisory = this.getBotCountAdvisory()
+
     return {
       server: `${this.config.host}:${this.config.port}`,
       serverConfig: {
@@ -427,14 +450,14 @@ class BotManager {
         version: this.config.version || '',
         joinDelayMs: this.config.joinDelayMs
       },
-      maxBotCount: 500,
       activeBotCount: this.activeBotCount,
+      botCountAdvisory,
       authMode: this.authMode,
       offlineNameStyle: this.offlineNameStyle,
       currentOfflineNames: this.getCurrentOfflineNameList(),
       savedNameLists: this.savedNameLists,
       started: this.started,
-      configuredBots: this.accounts.length,
+      configuredBots: this.activeBotCount,
       connectedBots: this.getConnectedBots().length,
       joinDelayMs: this.config.joinDelayMs,
       bots: Array.from(this.bots.values()).map((entry) => {
@@ -667,16 +690,17 @@ class BotManager {
     const targetSet = hasTargets ? new Set(targetUsernames) : null
 
     return Array.from(this.bots.values())
-      .map((entry) => entry.bot)
-      .filter((bot) => {
+      .filter((entry) => {
+        const bot = entry.bot
         if (!bot || !bot.player) {
           return false
         }
         if (!targetSet) {
           return true
         }
-        return targetSet.has(bot.username)
+        return targetSet.has(entry.id) || targetSet.has(bot.username)
       })
+      .map((entry) => entry.bot)
   }
 
   executeCommand(command, args, targetUsernames) {
@@ -948,8 +972,6 @@ class BotManager {
     if (restartOccurred) {
       await this.stop()
       await this.start()
-    } else if (!this.started) {
-      await this.start()
     } else {
       this.emitState()
     }
@@ -959,12 +981,12 @@ class BotManager {
 
   async setBotCount(count) {
     const parsed = Number(count)
-    if (!Number.isInteger(parsed) || parsed < 1 || parsed > 500) {
-      return { ok: false, error: 'Bot count must be between 1 and 500.' }
+    if (!Number.isInteger(parsed) || parsed < 1) {
+      return { ok: false, error: 'Bot count must be at least 1.' }
     }
 
     if (parsed === this.activeBotCount) {
-      return { ok: true, botCount: parsed, restartOccurred: false }
+      return { ok: true, botCount: parsed, restartOccurred: false, advisory: this.getBotCountAdvisory(parsed) }
     }
 
     this.activeBotCount = parsed
@@ -976,7 +998,7 @@ class BotManager {
       this.emitState()
     }
 
-    return { ok: true, botCount: parsed, restartOccurred }
+    return { ok: true, botCount: parsed, restartOccurred, advisory: this.getBotCountAdvisory(parsed) }
   }
 
   async stopSingleBot(botId) {

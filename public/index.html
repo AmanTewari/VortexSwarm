@@ -15,124 +15,147 @@
       <header class="topbar">
         <div>
           <p class="eyebrow">VORTEXSWARM</p>
-          <h1>Swarm Control Panel</h1>
+          <h1>Swarm Control</h1>
+          <p class="subtitle">A guided control panel for setup, run, and monitoring.</p>
         </div>
         <button id="themeToggle" class="btn ghost" type="button">Switch Theme</button>
       </header>
 
-      <section class="kpi-row">
-        <article class="kpi">
-          <span class="kpi-label">Server</span>
-          <strong id="server">-</strong>
-        </article>
-        <article class="kpi">
-          <span class="kpi-label">Configured Bots</span>
-          <strong id="configuredBots">0</strong>
-        </article>
-        <article class="kpi">
-          <span class="kpi-label">Connected Bots</span>
-          <strong id="connectedBots">0</strong>
-        </article>
-        <article class="kpi">
-          <span class="kpi-label">Join Delay</span>
-          <strong id="joinDelay">0ms</strong>
-        </article>
-        <article class="kpi">
-          <span class="kpi-label">Auth Mode</span>
-          <strong id="authModeBadge">MICROSOFT</strong>
-        </article>
-        <article class="kpi">
-          <span class="kpi-label">Swarm Status</span>
-          <strong id="swarmStatus">STOPPED</strong>
-        </article>
-        <article class="kpi">
-          <span class="kpi-label">Backend</span>
-          <strong id="backendStatus">OFFLINE</strong>
-        </article>
+      <section id="backendBanner" class="status-banner hidden" aria-live="polite">
+        <strong id="backendBannerText">Backend is offline. Reconnecting...</strong>
+        <button id="retryHealthCheck" class="btn ghost" type="button">Retry now</button>
       </section>
 
-      <section class="panel-row">
-        <article class="panel controls">
-          <h2>Broadcast Command</h2>
-          <form id="commandForm" class="command-form">
-            <input id="commandInput" name="commandInput" type="text" placeholder="come | spam hello | attack Steve | status" autocomplete="off" required />
-            <button class="btn" type="submit">Run</button>
+      <section class="journey-grid">
+        <article class="panel stage setup-stage">
+          <p class="stage-label">Step 1</p>
+          <h2>Setup Connection</h2>
+          <p class="stage-help">Set your server details first. Saving settings reconnects bots only if the swarm is already running.</p>
+
+          <form id="serverConfigForm" class="server-form">
+            <label for="serverHost">Server Host</label>
+            <input id="serverHost" name="serverHost" type="text" placeholder="localhost" required />
+
+            <label for="serverPort">Server Port</label>
+            <input id="serverPort" name="serverPort" type="number" min="1" max="65535" placeholder="25565" required />
+
+            <label for="serverVersion">Minecraft Version (optional)</label>
+            <input id="serverVersion" name="serverVersion" type="text" placeholder="auto" />
+
+            <label for="joinDelayMs">Join Delay (milliseconds)</label>
+            <input id="joinDelayMs" name="joinDelayMs" type="number" min="0" max="120000" placeholder="2000" required />
+
+            <label for="botCount">How many bots to run</label>
+            <input id="botCount" name="botCount" type="number" min="1" step="1" placeholder="5" required />
+            <p id="botCountHint" class="hint">Higher bot counts need more CPU and RAM.</p>
+
+            <button id="applySettings" class="btn" type="submit">Save Settings</button>
           </form>
 
-          <div class="quick-actions">
-            <button id="startAll" class="btn" type="button">Start Swarm</button>
-            <button class="btn ghost" data-cmd="come">come</button>
-            <button class="btn ghost" data-cmd="status">status</button>
-            <button class="btn ghost" data-cmd="attack zombie">attack zombie</button>
-            <button id="stopAll" class="btn danger" type="button">Stop Swarm</button>
-          </div>
-
-          <section class="server-panel">
-            <h3>Server Settings</h3>
-            <form id="serverConfigForm" class="server-form">
-              <label for="serverHost">Host</label>
-              <input id="serverHost" name="serverHost" type="text" placeholder="localhost" required />
-
-              <label for="serverPort">Port</label>
-              <input id="serverPort" name="serverPort" type="number" min="1" max="65535" placeholder="25565" required />
-
-              <label for="serverVersion">Version</label>
-              <input id="serverVersion" name="serverVersion" type="text" placeholder="auto" />
-
-              <label for="joinDelayMs">Join Delay (ms)</label>
-              <input id="joinDelayMs" name="joinDelayMs" type="number" min="0" max="120000" placeholder="2000" required />
-
-              <label for="botCount">Bot Count</label>
-              <input id="botCount" name="botCount" type="number" min="1" step="1" placeholder="5" required />
-
-              <button class="btn" type="submit">Apply & Restart</button>
-            </form>
-          </section>
-
           <fieldset class="mode-toggle">
-            <legend>Authentication Mode</legend>
+            <legend>Authentication</legend>
             <label class="mode-option" for="modeMicrosoft">
               <input type="radio" id="modeMicrosoft" name="authMode" value="microsoft" checked />
-              <span>Microsoft</span>
+              <span>Microsoft login</span>
             </label>
             <label class="mode-option" for="modeOffline">
               <input type="radio" id="modeOffline" name="authMode" value="offline" />
-              <span>Offline</span>
+              <span>Offline mode</span>
             </label>
+          </fieldset>
 
+          <section id="offlineOptions" class="offline-options hidden">
+            <h3>Offline Mode Options</h3>
+            <p class="stage-help">These options are used only when Offline mode is selected.</p>
             <div class="offline-style-wrap">
-              <label for="offlineNameStyle">Offline Name Style</label>
+              <label for="offlineNameStyle">Name style</label>
               <select id="offlineNameStyle" name="offlineNameStyle">
                 <option value="gaming">Gaming (DoggyGamer2331)</option>
                 <option value="human">Human (TomFelton / Tom_Felton)</option>
                 <option value="mixed">Mixed</option>
               </select>
-              <button id="saveNames" class="btn ghost" type="button">Save Names</button>
+              <button id="saveNames" class="btn ghost" type="button">Save Current Names</button>
             </div>
-          </fieldset>
 
-          <section class="saved-names-panel">
-            <h3>Saved Names</h3>
-            <div id="savedNamesList" class="saved-names-list"></div>
+            <section class="saved-names-panel">
+              <h3>Saved Name Sets</h3>
+              <div id="savedNamesList" class="saved-names-list"></div>
+            </section>
+
+            <section class="saved-names-panel">
+              <h3>Current Offline Names</h3>
+              <div id="currentOfflineNamesList" class="saved-names-list"></div>
+            </section>
           </section>
-
-          <section class="saved-names-panel">
-            <h3>Current Offline Names</h3>
-            <div id="currentOfflineNamesList" class="saved-names-list"></div>
-          </section>
-
-          <p id="feedback" class="feedback"></p>
         </article>
 
-        <article class="panel logs">
-          <h2>Live Logs</h2>
-          <div id="logFeed" class="log-feed" aria-live="polite"></div>
+        <article class="panel stage run-stage">
+          <p class="stage-label">Step 2</p>
+          <h2>Run Commands</h2>
+          <p class="stage-help">Start the swarm, then use quick actions or type your own command.</p>
+
+          <div class="quick-actions">
+            <button id="startAll" class="btn" type="button">Start Swarm</button>
+            <button id="stopAll" class="btn danger" type="button">Stop Swarm</button>
+          </div>
+
+          <form id="commandForm" class="command-form">
+            <label for="commandInput">Command</label>
+            <input id="commandInput" name="commandInput" type="text" placeholder="come | spam hello | attack zombie | status" autocomplete="off" required />
+            <button class="btn" type="submit">Send Command</button>
+          </form>
+
+          <div class="quick-actions quick-actions-soft">
+            <button class="btn ghost" data-cmd="come" type="button">Follow me</button>
+            <button class="btn ghost" data-cmd="status" type="button">Report status</button>
+            <button class="btn ghost" data-cmd="attack zombie" type="button">Attack nearest zombie</button>
+          </div>
+
+          <p id="feedback" class="feedback" aria-live="polite"></p>
         </article>
       </section>
 
-      <section class="panel">
-        <h2>Bot Fleet</h2>
+      <section class="panel stage monitor-stage">
+        <p class="stage-label">Step 3</p>
+        <h2>Monitor Health</h2>
+        <p class="stage-help">Check live status, bot cards, and logs to understand what the swarm is doing.</p>
+
+        <section class="kpi-row">
+          <article class="kpi">
+            <span class="kpi-label">Server</span>
+            <strong id="server">-</strong>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">Target Bot Count</span>
+            <strong id="configuredBots">0</strong>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">Connected Bots</span>
+            <strong id="connectedBots">0</strong>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">Join Delay</span>
+            <strong id="joinDelay">0ms</strong>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">Auth Mode</span>
+            <strong id="authModeBadge">MICROSOFT</strong>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">Swarm Status</span>
+            <strong id="swarmStatus">STOPPED</strong>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label">Backend</span>
+            <strong id="backendStatus">OFFLINE</strong>
+          </article>
+        </section>
+
+        <h3 class="subhead">Bot Fleet</h3>
         <div id="botGrid" class="bot-grid"></div>
+
+        <h3 class="subhead">Live Logs</h3>
+        <div id="logFeed" class="log-feed" aria-live="polite"></div>
       </section>
     </main>
 
